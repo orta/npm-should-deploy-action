@@ -878,6 +878,7 @@ const axios_1 = __importDefault(__webpack_require__(53));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         const cwd = core.getInput('cwd') || '.';
+        const npmTag = core.getInput('npmTag') || 'latest';
         const packagePath = path_1.join(cwd, 'package.json');
         const pkg = JSON.parse(fs_1.readFileSync(packagePath, 'utf8'));
         try {
@@ -888,13 +889,14 @@ function run() {
             if (!npmInfo.data || !npmInfo.data._id) {
                 throw new Error('Got a bad response from npm');
             }
-            const shouldDeploy = pkg.version > npmInfo.data.version;
+            const theirVersion = npmInfo.data['dist-tags'][npmTag];
+            const shouldDeploy = pkg.version > theirVersion;
             if (shouldDeploy) {
                 core.setOutput('deploy', 'true');
                 core.info('Recommending a deploy');
             }
             else {
-                core.info(`Not recommending a a deploy because ${pkg.version} < ${npmInfo.data.version}`);
+                core.info(`Not recommending a a deploy because ${pkg.version} < ${theirVersion}`);
             }
         }
         catch (error) {
