@@ -1,18 +1,24 @@
 import * as core from '@actions/core'
-import {wait} from './wait'
+import {readFileSync} from 'fs'
+import {join} from 'path'
+import axios from 'axios'
 
 async function run(): Promise<void> {
+  const cwd = core.getInput('cwd') || '.'
+  const packagePath = join(cwd, 'package.json')
+  const pkg = JSON.parse(readFileSync(packagePath, 'utf8'))
+
   try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
-
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
-
-    core.setOutput('time', new Date().toTimeString())
+    const npmInfo = await axios({
+      url: `https://registry.npmjs.org/${pkg.name}`,
+      method: 'GET'
+    })
+    if (!npmInfo.data || !npmInfo.data._id) {
+      throw new Error('Got a bad response from npm')
+    }
+    if (pkg.version > npmInfo.data.version) core.setOutput('should-deploy', 'true')
   } catch (error) {
-    core.setFailed(error.message)
+    core.setFailed(`${pkg.name} is a new package, you need to have deployed at least once`)
   }
 }
 

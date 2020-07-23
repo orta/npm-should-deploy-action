@@ -1,11 +1,10 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
-inputs:
-  milliseconds: # change this
-    required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+name: 'npm should deploy'
+description: 'Checks to see if your package is semver higher than the latest prod version'
+author: 'Orta'
+outputs:
+  should-deploy:
+    description: 'Whether a deploy is needed'
+
 runs:
   using: 'node12'
   main: 'dist/index.js'

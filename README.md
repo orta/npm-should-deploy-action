@@ -1,76 +1,47 @@
-<p align="center">
-  <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
-</p>
+You want to deploy on merges to master, but think that can be a bit noisy. 
+This action compares the version in package.json to see if the local one is higher and you can then deploy. 
 
-# Create a JavaScript Action using TypeScript
+Here's an example of it in action:
 
-Use this template to bootstrap the creation of a TypeScript action.:rocket:
+```yml
+name: Deploy to npm
 
-This template includes compilation support, tests, a validation workflow, publishing, and versioning guidance.  
+on:
+  push:
+    branches:
+      - main
+      - master
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-## Create an action from this template
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          registry-url: "https://registry.npmjs.org"
 
-Click the `Use this Template` and provide the new repo details for your action
+      # Ensure everything is set up right
+      - run: "yarn install"
+      - run: "yarn build"
+      - run: "yarn test"
 
-## Code in Main
+      - uses: orta/npm-should-deploy-action@master
+        id: check
 
-Install the dependencies  
-```bash
-$ npm install
+      - run: "npm publish"
+        if: ${{ steps.check.outputs.should-deploy == "true" }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 ```
 
-Build the typescript and package it for distribution
-```bash
-$ npm run build && npm run package
-```
-
-Run the tests :heavy_check_mark:  
-```bash
-$ npm test
-
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-
-...
-```
-
-## Change action.yml
-
-The action.yml contains defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
+Basically a simpler version of [`orta/monorepo-deploy-nightly`](https://github.com/orta/monorepo-deploy-nightly) 
+for single package repos.
 
 ## Publish to a distribution branch
 
-Actions are run from GitHub repos so we will checkin the packed dist folder. 
+Actions are run from GitHub repos so we will check-in the packed dist folder. 
 
 Then run [ncc](https://github.com/zeit/ncc) and push the results:
 ```bash
