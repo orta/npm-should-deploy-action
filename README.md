@@ -31,7 +31,7 @@ jobs:
         id: check
 
       - run: "npm publish"
-        if: ${{ steps.check.outputs.should-deploy == "true" }}
+        if: ${{ steps.check.outputs.deploy == "true" }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 ```

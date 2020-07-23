@@ -16,7 +16,11 @@ async function run(): Promise<void> {
     if (!npmInfo.data || !npmInfo.data._id) {
       throw new Error('Got a bad response from npm')
     }
-    if (pkg.version > npmInfo.data.version) core.setOutput('should-deploy', 'true')
+    const shouldDeploy = pkg.version > npmInfo.data.version
+    if (shouldDeploy) {
+      core.setOutput('deploy', 'true')
+      core.info('Recommending a deploy')
+    }
   } catch (error) {
     core.setFailed(`${pkg.name} is a new package, you need to have deployed at least once`)
   }

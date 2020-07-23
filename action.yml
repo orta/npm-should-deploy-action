@@ -2,7 +2,7 @@ name: 'npm should deploy'
 description: 'Checks to see if your package is semver higher than the latest prod version'
 author: 'Orta'
 outputs:
-  should-deploy:
+  deploy:
     description: 'Whether a deploy is needed'
 
 runs:
