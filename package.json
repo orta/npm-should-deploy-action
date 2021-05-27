@@ -24,7 +24,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.2.4",
+    "@actions/core": "^1.2.6",
     "axios": "^0.19.2",
     "semver": "^7.3.5"
   },
