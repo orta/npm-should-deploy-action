@@ -2,6 +2,7 @@ import * as core from '@actions/core'
 import {readFileSync} from 'fs'
 import {join} from 'path'
 import axios from 'axios'
+import semver = require('semver')
 
 async function run(): Promise<void> {
   const cwd = core.getInput('cwd') || '.'
@@ -19,7 +20,7 @@ async function run(): Promise<void> {
       throw new Error('Got a bad response from npm')
     }
     const theirVersion = npmInfo.data['dist-tags'][npmTag]
-    const shouldDeploy = pkg.version > theirVersion
+    const shouldDeploy = semver.gt(pkg.version, theirVersion)
     if (shouldDeploy) {
       core.setOutput('deploy', 'true')
       core.info('Recommending a deploy')
