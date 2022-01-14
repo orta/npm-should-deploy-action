@@ -1996,6 +1996,7 @@ const core = __importStar(__webpack_require__(470));
 const fs_1 = __webpack_require__(747);
 const path_1 = __webpack_require__(622);
 const axios_1 = __importDefault(__webpack_require__(53));
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const semver = __webpack_require__(876);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -2022,7 +2023,21 @@ function run() {
             }
         }
         catch (error) {
-            core.setFailed(`${pkg.name} is a new package, you need to have deployed at least once`);
+            core.info('Got error from npm:');
+            core.info(error.message);
+            if (!pkg.name.includes('@')) {
+                core.info('This is not on npm, and not an org package - so recommending a deploy');
+                core.setOutput('deploy', 'true');
+            }
+            else {
+                if (pkg.publishConfig) {
+                    core.info('This is not on npm, has an org package but als has publishConfig - so recommending a deploy');
+                    core.setOutput('deploy', 'true');
+                }
+                else {
+                    core.setFailed(`${pkg.name} is a new org package, you need to have deployed at least once or use publishConfig in the package.json`);
+                }
+            }
         }
     });
 }
