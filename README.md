@@ -27,7 +27,7 @@ jobs:
       - run: 'yarn build'
       - run: 'yarn test'
 
-      - uses: orta/npm-should-deploy-action@master
+      - uses: orta/npm-should-deploy-action@main
         id: check
 
       - run: 'npm publish'
